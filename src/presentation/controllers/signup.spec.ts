@@ -1,13 +1,29 @@
 import { SignUpController } from './signup'
 import { MissingParamError } from '../errors/missing-param-error'
+import { InvalidParamError } from '../errors/invalid-param-error'
+import { EmailValidator } from '../protocols/email-validator'
+import jestConfig from '../../../jest.config'
 
-const makeSut = (): SignUpController => {
-  return new SignUpController()
+interface SutTypes {
+  sut: SignUpController
+  emailValidatorStup: EmailValidator
+}
+
+const makeSut = (): SutTypes => {
+  class EmailValidatorStup implements EmailValidator {
+    isValid (email: string): boolean { return true }
+  }
+  const emailValidatorStup = new EmailValidatorStup()
+  const sut = new SignUpController(emailValidatorStup)
+  return {
+    sut,
+    emailValidatorStup
+  }
 }
 
 describe('SignUp Controller', () => {
   test('Should return 400 if no name is provided', () => {
-    const sut = makeSut()
+    const { sut } = makeSut()
     const httpRequest = {
       body: {
         email: 'foo@example.com',
@@ -21,7 +37,7 @@ describe('SignUp Controller', () => {
   })
 
   test('Should return 400 if no email is provided', () => {
-    const sut = makeSut()
+    const { sut } = makeSut()
     const httpRequest = {
       body: {
         name: 'foom',
@@ -35,7 +51,7 @@ describe('SignUp Controller', () => {
   })
 
   test('Should return 400 if no password is provided', () => {
-    const sut = makeSut()
+    const { sut } = makeSut()
     const httpRequest = {
       body: {
         name: 'foom',
@@ -49,7 +65,7 @@ describe('SignUp Controller', () => {
   })
 
   test('Should return 400 if no password confirmation is provided', () => {
-    const sut = makeSut()
+    const { sut } = makeSut()
     const httpRequest = {
       body: {
         name: 'foom',
@@ -60,5 +76,21 @@ describe('SignUp Controller', () => {
     const httpResponse = sut.handle(httpRequest)
     expect(httpResponse.statusCode).toBe(400)
     expect(httpResponse.body).toEqual(new MissingParamError('passwordConfirmation'))
+  })
+
+  test('Should return 400 if as invalid email is provided', () => {
+    const { sut, emailValidatorStup } = makeSut()
+    jest.spyOn(emailValidatorStup, 'isValid').mockReturnValueOnce(false)
+    const httpRequest = {
+      body: {
+        name: 'foom',
+        email: 'foo@example.com',
+        password: 'password',
+        passwordConfirmation: 'password'
+      }
+    }
+    const httpResponse = sut.handle(httpRequest)
+    expect(httpResponse.statusCode).toBe(400)
+    expect(httpResponse.body).toEqual(new InvalidParamError('email'))
   })
 })
