@@ -203,19 +203,19 @@ describe('SignUp Controller', () => {
     const { sut } = makeSut()
     const httpRequest = {
       body: {
-        name: 'foom',
-        email: 'foo@example.com',
-        password: 'password',
-        passwordConfirmation: 'password'
+        nname: 'valid_name',
+        email: 'valid_email@gmail.com',
+        password: 'valid_password',
+        passwordConfirmation: 'valid_password'
       }
     }
     const httpResponse = sut.handle(httpRequest)
     expect(httpResponse.statusCode).toBe(200)
     expect(httpResponse.body).toEqual({
       id: 'valid_id',
-      name: 'foom',
-      email: 'foo@example.com',
-      password: 'password'
+      name: 'valid_name',
+      email: 'valid_email@gmail.com',
+      password: 'valid_password'
     })
   })
 })
