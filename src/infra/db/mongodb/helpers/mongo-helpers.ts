@@ -1,9 +1,11 @@
 import { MongoClient, Collection } from 'mongodb'
 
 export const MongoHelper = {
-  client: null as unknown as MongoClient,
+  client: null as unknown as MongoClient || null,
+  uri: null as unknown as string || null,
 
   async connect (uri: string): Promise<void> {
+    this.uri = uri
     this.client = await MongoClient.connect(uri)
   },
 
@@ -17,6 +19,6 @@ export const MongoHelper = {
 
   map (data: any): any {
     const { _id, ...rest } = data
-    return { ...rest, id: _id }
+    return Object.assign({}, rest, { id: _id })
   }
 }
