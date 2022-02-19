@@ -1,1 +1,0 @@
-# clean-ts-api-course
