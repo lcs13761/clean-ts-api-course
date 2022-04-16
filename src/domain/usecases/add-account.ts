@@ -1,3 +1,5 @@
+import { AccountModel } from '../models/account'
+
 export interface AddAccount {
   // eslint-disable-next-line @typescript-eslint/method-signature-style
   add(account: AddAccount.Params): Promise<AddAccount.Result>
@@ -13,3 +15,5 @@ export namespace AddAccount {
   }
   export type Result = Boolean
 }
+
+export type AddAccountParams = Omit<AccountModel, 'id'>
